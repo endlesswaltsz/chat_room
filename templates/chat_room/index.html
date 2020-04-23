@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儿子们的快乐童年</title>
+</head>
+<body>
+    <input type="text" id="content"><button id="submit">提交</button>
+    <br>
+    <div id="chat_body" style="padding-top: 20px;">
+
+    </div>
+</body>
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script>
+alias = window.prompt("请输入聊天昵称", "")
+ws = new WebSocket('ws://'+ window.location.host + '/')
+ws.onmessage = event =>{
+    console.log(event.data)
+}
+
+$("#submit").click(() => {
+    ctx = {
+        alias: alias,
+        msg: $("#content").val()
+    }
+    ws.send(JSON.stringify(ctx))
+    $("#content").val("")
+})
+    
+
+</script>
+</html>
