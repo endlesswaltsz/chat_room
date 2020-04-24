@@ -6,18 +6,30 @@
     <title>儿子们的快乐童年</title>
 </head>
 <body>
-    <input type="text" id="content"><button id="submit">提交</button>
+    <input type="text" id="content"><button id="submit">提交</button><button id="clear">清空聊天</button>
     <br>
+    <span id="online"></span>
     <div id="chat_body" style="padding-top: 20px;">
 
     </div>
 </body>
 <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 <script>
-alias = window.prompt("请输入聊天昵称", "")
-ws = new WebSocket('ws://'+ window.location.host + '/')
+var alias = ""
+while (alias.length == 0) {
+    alias = window.prompt("请输入聊天昵称", "")
+}
+
+ws = new WebSocket('ws://'+ window.location.host + '/' + '?alias=' + alias)
 ws.onmessage = event =>{
-    console.log(event.data)
+    switch (JSON.parse(event.data).type) {
+        case "msg":
+            $('#chat_body').append('<div>' + JSON.parse(event.data).alias + ":" + JSON.parse(event.data).msg + '</div>')
+            break
+        case "monitor_member":
+            $("#online").text("当前在线人员：" + JSON.parse(event.data).msg)
+            break
+    }
 }
 
 $("#submit").click(() => {
@@ -27,6 +39,11 @@ $("#submit").click(() => {
     }
     ws.send(JSON.stringify(ctx))
     $("#content").val("")
+})
+
+$("#clear").click(() => {
+
+    $("#chat_body").empty();
 })
     
 
