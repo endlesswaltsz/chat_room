@@ -14,14 +14,16 @@
     </div>
 </body>
 <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.hotkeys@0.1.0/jquery.hotkeys.min.js"></script>
 <script>
 var alias = ""
 while (alias.length == 0) {
     alias = window.prompt("请输入聊天昵称", "")
 }
 
-ws = new WebSocket('ws://'+ window.location.host + '/' + '?alias=' + alias)
-ws.onmessage = event =>{
+connect = () => {
+    ws = new WebSocket('ws://'+ window.location.host + '/' + '?alias=' + alias)
+    ws.onmessage = event =>{
     switch (JSON.parse(event.data).type) {
         case "msg":
             $('#chat_body').append('<div>' + JSON.parse(event.data).alias + ":" + JSON.parse(event.data).msg + '</div>')
@@ -29,16 +31,39 @@ ws.onmessage = event =>{
         case "monitor_member":
             $("#online").text("当前在线人员：" + JSON.parse(event.data).msg)
             break
+        }
+    }
+    ws.onclose = e => {
+        setTimeout(() => {
+            connect()
+        }, 1000)
     }
 }
+connect()
 
-$("#submit").click(() => {
+
+sendmsg = () => {
     ctx = {
         alias: alias,
         msg: $("#content").val()
     }
+    if ($("#content").val().length == 0) {
+        alert("发送消息不能为空！")
+        return
+    }
     ws.send(JSON.stringify(ctx))
     $("#content").val("")
+}
+
+$(document).on('keypress',function(e) {
+    if(e.which == 13) {
+        sendmsg()
+    }
+});
+
+
+$("#submit").click(() => {
+    sendmsg()
 })
 
 $("#clear").click(() => {

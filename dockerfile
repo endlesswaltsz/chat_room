@@ -1,5 +1,4 @@
-FROM python:3.8-alpine3.11
-RUN apk add gcc curl git make musl-dev linux-headers
+FROM python:3.8
 WORKDIR /data
 COPY . /data
 RUN pip install --no-cache-dir -r /data/requirements.txt
